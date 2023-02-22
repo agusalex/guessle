@@ -297,17 +297,17 @@ function App() {
                     className="mx-auto flex w-full grow flex-col px-1 pt-2 pb-8 sm:px-6 md:max-w-7xl lg:px-8 short:pb-2 short:pt-2">
                         <h1 style={{fontSize:"1.2em"}} className="center dark:text-white">Guess the word of the day or ask a question to the oracle ending with "?"</h1>
                     <div className="flex grow flex-col justify-center pb-6 short:pb-2">
-                    <AIWordle
-                            onEnter={onEnter}
-                            onChange={onChange}
-                            onQuestion={onQuestion}
-                        />
                         <Grid
                             solution={solution}
                             guesses={guesses}
                             currentGuess={currentGuess}
                             isRevealing={isRevealing}
                             currentRowClassName={currentRowClass}
+                        />
+                        <AIWordle
+                            onEnter={onEnter}
+                            onChange={onChange}
+                            onQuestion={onQuestion}
                         />
                     </div>
                     <InfoModal
