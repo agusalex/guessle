@@ -200,35 +200,45 @@ function App() {
     }
 
     const onQuestion = async (question: string) => {
-        const configuration = new Configuration({
-            apiKey: OPENAI_KEY,
-        });
-        const openai = new OpenAIApi(configuration);
-        const completion = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: "You are an agent in a game that can only answer to any question with YES, NO or MAYBE. Refrain from answering in any other way. " +
-                + "Help the player find the correct word by answering their questions. For example:" +
-                "A user question may be, 'is it a fruit ?' if the correct answer is Apple then you would answer YES." +
-                "If for example the question for Apple is: 'is it tasty?', you could answer MAYBE. If they ask, is it a vehicle, the answer is NO. \n"
-                + "Given that the correct word is " + solution.toLowerCase() + " the player asks the following question about the correct word: \n" + question.toLowerCase() ,
-        });
 
-        const response: string = (completion.data.choices[0].text || "no").toLowerCase()
-        console.log("question is: " + question)
-        console.log("answer is: " + response)
-        if (response.includes("yes")) {
-            showSuccessAlert(question + "\n Yes", {
-                persist: false,
+        const query = "You are an agent in a game that can only answer to any question with YES, NO or MAYBE. Refrain from answering in any other way. " +
+            + "Help the player find the correct word by answering their questions. For example:" +
+            "A user question may be, 'is it a fruit ?' if the correct answer is Apple then you would answer YES." +
+            "If for example the question for Apple is: 'is it tasty?', you could answer MAYBE. If they ask, is it a vehicle, the answer is NO. \n"
+            + "Given that the correct word is " + solution.toLowerCase() + " the player asks the following question about the correct word: \n" + question.toLowerCase()
+
+        fetch('https://ai-summary-service-production.up.railway.app/v1/guessle', {
+            method: 'POST',
+            body: JSON.stringify({
+                question:query
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                const response: string = (data || "no").toLowerCase()
+                console.log("question is: " + question)
+                console.log("answer is: " + response)
+                if (response.includes("yes")) {
+                    showSuccessAlert(question + "\n Yes", {
+                        persist: false,
+                    })
+                } else if (response.includes("maybe")){
+                    showMaybe(question + "\n Maybe", {
+                        persist: false,
+                    })
+                } else {
+                    showErrorAlert(question + "\n No", {
+                        persist: false,
+                    })
+                }
             })
-        } else if (response.includes("maybe")){
-            showMaybe(question + "\n Maybe", {
-                persist: false,
-            })
-        } else {
-            showErrorAlert(question + "\n No", {
-                persist: false,
-            })
-        }
+            .catch((err) => {
+                console.log(err.message);
+            });
+
     }
 
     const onEnter = (input: string) => {
