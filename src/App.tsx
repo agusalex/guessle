@@ -233,7 +233,7 @@ function App() {
             return true;
         } catch (err: unknown) {
             if (err instanceof Error) {
-                console.log(err.message);
+                console.log(err.message)
                 showErrorAlert(err.message, {
                     persist: false,
                 });
