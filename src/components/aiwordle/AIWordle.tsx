@@ -53,7 +53,7 @@ export const AIWordle = ({onEnter, onChange, onQuestion}: Props) => {
     };
     return (
         <div style={{paddingTop: "3vh",marginLeft:"9px"}} className="flex justify-center dark:text-white">
-            <TextField ref={inputRef} onFocus={handleInputFocus} className="input"
+            <TextField type="text" ref={inputRef} onFocus={handleInputFocus} className="input"
                        style={{minWidth: "240px", borderColor: "white"}} id="outlined-basic"
                        onChange={(event) => setInput(event)} onKeyDown={handleKeyDown} value={currentInput}
                        variant="outlined"/>
