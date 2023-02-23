@@ -48,7 +48,6 @@ import {
     unicodeLength,
 } from './lib/words'
 import AIWordle from "./components/aiwordle/AIWordle";
-import {Configuration, OpenAIApi} from "openai";
 
 
 function App() {
@@ -193,53 +192,57 @@ function App() {
         ) {
             console.log("setting current word " + value)
             setCurrentGuess(value)
-        }
-        else {
+        } else {
             console.log("Not setting current word")
         }
     }
 
-    const onQuestion = async (question: string) => {
+    async function onQuestion(question: string): Promise<boolean> {
 
         const query = "You are an agent in a game that can only answer to any question with YES, NO or MAYBE. Refrain from answering in any other way. " +
-            + "Help the player find the correct word by answering their questions. For example:" +
+            +"Help the player find the correct word by answering their questions. For example:" +
             "A user question may be, 'is it a fruit ?' if the correct answer is Apple then you would answer YES." +
             "If for example the question for Apple is: 'is it tasty?', you could answer MAYBE. If they ask, is it a vehicle, the answer is NO. \n"
-            + "Given that the correct word is " + solution.toLowerCase() + " the player asks the following question about the correct word: \n" + question.toLowerCase()
-
-        fetch('https://ai-summary-service-production.up.railway.app/v1/guessle', {
-            method: 'POST',
-            body: JSON.stringify({
-                question:query
-            }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-            .then((response) => response.text())
-            .then((data) => {
-                const response: string = (data || "no").toLowerCase()
-                console.log("question is: " + question)
-                console.log("answer is: " + response)
-                if (response.includes("yes")) {
-                    showSuccessAlert(question + "\n Yes", {
-                        persist: false,
-                    })
-                } else if (response.includes("maybe")){
-                    showMaybe(question + "\n Maybe", {
-                        persist: false,
-                    })
-                } else {
-                    showErrorAlert(question + "\n No", {
-                        persist: false,
-                    })
-                }
-            })
-            .catch((err) => {
-                console.log(err.message);
+            + "Given that the correct word is " + solution.toLowerCase() +
+            " the player asks the following question about the correct word: \n" + question.toLowerCase()
+        try {
+            const response = await fetch('https://ai-summary-service-production.up.railway.app/v1/guessle', {
+                method: 'POST',
+                body: JSON.stringify({
+                    question: query
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
             });
+            const data = await response.text();
+            const responseString: string = (data || "no").toLowerCase();
+            if (responseString.includes("yes")) {
+                showSuccessAlert(question + "\n Yes", {
+                    persist: false,
+                });
+            } else if (responseString.includes("maybe")) {
+                showMaybe(question + "\n Maybe", {
+                    persist: false,
+                });
+            } else {
+                showErrorAlert(question + "\n No", {
+                    persist: false,
+                });
+            }
+            return true;
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                console.log(err.message);
+                showErrorAlert(err.message, {
+                    persist: false,
+                });
+            }
+        }
 
+        return true;
     }
+
 
     const onEnter = (input: string) => {
         if (isGameWon || isGameLost) {
@@ -276,7 +279,7 @@ function App() {
     return (
         <Div100vh>
 
-            <div className="flex h-full flex-col">
+            <div className="flex flex-col">
                 <Navbar
                     setIsInfoModalOpen={setIsInfoModalOpen}
                     setIsStatsModalOpen={setIsStatsModalOpen}
@@ -293,18 +296,17 @@ function App() {
                     </div>
                 )}
 
-                <div
-                    className="mx-auto flex w-full grow flex-col px-1 pt-2 pb-8 sm:px-6 md:max-w-7xl lg:px-8 short:pb-2 short:pt-2">
-                        <h1 style={{fontSize:"1.2em"}} className="center dark:text-white">Guess the word of the day or ask a question to the oracle ending with "?"</h1>
-                    <div className="flex grow flex-col justify-center pb-6 short:pb-2">
+                <div style={{paddingBottom: 0}}
+                     className="mx-auto flex w-full grow flex-col px-1 pt-2 pb-8 sm:px-6 md:max-w-7xl lg:px-8 short:pb-2 short:pt-2">
+                    <h1 style={{fontSize: "1.2em", paddingBottom: "2vh"}} className="center dark:text-white">Guess the
+                        word of the day or ask a question to the oracle ending with "?"</h1>
+                    <div style={{paddingBottom: 0}} className="flex grow flex-col justify-center pb-6 short:pb-2">
                         <Grid
                             solution={solution}
                             guesses={guesses}
                             currentGuess={currentGuess}
                             isRevealing={isRevealing}
                             currentRowClassName={currentRowClass}
-                        />
-                        <AIWordle
                             onEnter={onEnter}
                             onChange={onChange}
                             onQuestion={onQuestion}

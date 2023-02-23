@@ -1,52 +1,69 @@
-import React, {useState} from "react";
+import React, {FocusEvent, useRef, useState} from "react";
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
-import {TextField} from "@mui/material";
+import {CircularProgress, TextField} from "@mui/material";
 import './AIWordle.css'
 
 type Props = {
     onEnter: (word: string) => void
     onChange: (word: string) => void
-    onQuestion: (question: string) => void
+    onQuestion: (question: string) => Promise<boolean>
 }
 export const AIWordle = ({onEnter, onChange, onQuestion}: Props) => {
-    const [currentInput, setCurrentInput] = useState<string>("");
+    const [currentInput, setCurrentInput] = useState<string>("IS IT A FRUIT?");
     const [guesses, setGuesses] = useState<string[]>([]);
+    const [isLoading, setLoading] = useState<boolean>(false)
 
-    function setInput(event: React.ChangeEvent<HTMLTextAreaElement|HTMLInputElement>) {
-        if (event.target.value !== undefined){
+    function setInput(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
+        if (event.target.value !== undefined) {
             const value = event.target.value || ""
             setCurrentInput(value.toUpperCase())
         }
     }
 
-    async function handleGuessSubmit(event: React.FormEvent) {
-        event.preventDefault();
+    const handleKeyDown = (event: React.KeyboardEvent) => {
+        console.log("Pressed")
+        if (event.key === 'Enter') {
+            console.log("Pressed")
+            handleGuessSubmit(event)
+        }
+    };
 
+    function handleGuessSubmit(event: React.FormEvent) {
+        event.preventDefault();
         if (currentInput === "") {
             return;
         }
         if (currentInput.includes("?")) {
-            onQuestion(currentInput)
+            setLoading(true)
+            onQuestion(currentInput).then((e:boolean)=>setLoading(false))
             setCurrentInput("");
         } else {
             onChange(currentInput)
-            console.log("the current guess is : " + currentInput)
             onEnter(currentInput)
             setGuesses([...guesses, currentInput]);
             setCurrentInput("");
         }
     }
 
-    return (
+    const inputRef = useRef<HTMLInputElement>(null);
 
+    const handleInputFocus = () => {
+        if (inputRef.current) {
+            inputRef.current.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+    };
+    return (
         <div style={{paddingTop: "3vh"}} className="flex justify-center dark:text-white">
-            <TextField className="input" style={{minWidth: "240px", borderColor: "white"}} id="outlined-basic"
-                       onChange={(event) => setInput(event)} value={currentInput} variant="outlined"/>
-            <IconButton style={{paddingLeft: "25px"}} onClick={handleGuessSubmit} className="flex justify-center"
-                        color="primary">
-                <SendIcon/>
-            </IconButton>
+            <TextField ref={inputRef} onFocus={handleInputFocus} className="input"
+                       style={{minWidth: "240px", borderColor: "white"}} id="outlined-basic"
+                       onChange={(event) => setInput(event)} onKeyDown={handleKeyDown} value={currentInput}
+                       variant="outlined"/>
+            {isLoading ? <div style={{paddingLeft:"25px", paddingTop:"8px"}}><CircularProgress className="flex justify-center" /></div> :
+                <IconButton style={{paddingLeft: "25px"}} onClick={handleGuessSubmit} className="flex justify-center"
+                            color="primary">
+                    <SendIcon/>
+                </IconButton>}
         </div>
     );
 }

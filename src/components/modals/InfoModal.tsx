@@ -1,5 +1,9 @@
 import { Cell } from '../grid/Cell'
 import { BaseModal } from './BaseModal'
+import {CircularProgress, TextField} from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import SendIcon from "@mui/icons-material/Send";
+import React from "react";
 
 type Props = {
   isOpen: boolean
@@ -10,10 +14,23 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
   return (
     <BaseModal title="How to play" isOpen={isOpen} handleClose={handleClose}>
       <p className="text-sm text-gray-500 dark:text-gray-300">
-        Guess the word in 6 tries. After each guess, the color of the tiles will
-        change to show how close your guess was to the word.
+          To find out the answer, write a question ending with "?"
       </p>
-
+        <div style={{paddingTop: "3vh",paddingBottom: "3vh"}} className="flex justify-center dark:text-white">
+            <TextField className="input"
+                       style={{minWidth: "240px", borderColor: "white"}} id="outlined-basic"
+                       defaultValue={"Is it a fruit?"}
+                       variant="outlined"/>
+                <IconButton style={{paddingLeft: "25px"}} className="flex justify-center"
+                            color="primary">
+                    <SendIcon/>
+                </IconButton>
+        </div>
+       <p style={{paddingBottom:"5px"}} className="text-sm text-gray-500 dark:text-gray-300">
+           The AI will answer with: Yes, No or Maybe.
+      </p>
+        <p className="text-sm text-gray-500 dark:text-gray-300">   When ready guess the word in 3g tries. After each guess, the color of the tiles will
+            change to show how close your guess was to the word.</p>
       <div className="mb-1 mt-4 flex justify-center">
         <Cell
           isRevealing={true}
@@ -55,17 +72,6 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-300">
         The letter U is not in the word in any spot.
-      </p>
-
-      <p className="mt-6 text-sm italic text-gray-500 dark:text-gray-300">
-        This is an open source version of the word guessing game we all know and
-        love -{' '}
-        <a
-          href="https://github.com/cwackerfuss/react-wordle"
-          className="font-bold underline"
-        >
-          check out the code here
-        </a>{' '}
       </p>
     </BaseModal>
   )

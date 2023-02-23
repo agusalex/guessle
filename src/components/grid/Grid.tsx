@@ -2,6 +2,8 @@ import { MAX_CHALLENGES } from '../../constants/settings'
 import { CompletedRow } from './CompletedRow'
 import { CurrentRow } from './CurrentRow'
 import { EmptyRow } from './EmptyRow'
+import AIWordle from "../aiwordle/AIWordle";
+import React from "react";
 
 type Props = {
   solution: string
@@ -9,6 +11,9 @@ type Props = {
   currentGuess: string
   isRevealing?: boolean
   currentRowClassName: string
+  onEnter: (word: string) => void
+  onChange: (word: string) => void
+  onQuestion: (question: string) => Promise<boolean>
 }
 
 export const Grid = ({
@@ -17,6 +22,9 @@ export const Grid = ({
   currentGuess,
   isRevealing,
   currentRowClassName,
+  onEnter,
+  onChange,
+  onQuestion
 }: Props) => {
   const empties =
     guesses.length < MAX_CHALLENGES - 1
@@ -39,7 +47,11 @@ export const Grid = ({
       {empties.map((_, i) => (
         <EmptyRow key={i} />
       ))}
-
+      <AIWordle
+          onEnter={onEnter}
+          onChange={onChange}
+          onQuestion={onQuestion}
+      />
     </>
   )
 }
