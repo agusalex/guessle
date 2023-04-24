@@ -206,7 +206,7 @@ function App() {
             + "Given that the correct word is " + solution.toLowerCase() +
             " the player asks the following question about the correct word: \n" + question.toLowerCase()
         try {
-            const response = await fetch('https://ai-summary-service-production.up.railway.app/v1/guessle', {
+            const response = await fetch('https://ai-summary-service.vercel.app/v1/guessle', {
                 method: 'POST',
                 body: JSON.stringify({
                     question: query
